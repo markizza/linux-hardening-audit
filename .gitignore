@@ -1,0 +1,27 @@
+# Private keys and credentials
+*.pem
+*.key
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# Environment/secrets
+.env
+.env.*
+
+# Raw/unredacted evidence
+*.raw
+*.raw.txt
+*.unredacted
+*.unredacted.txt
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# OS/editor artefacts
+.DS_Store
+Thumbs.db
+.vscode/
