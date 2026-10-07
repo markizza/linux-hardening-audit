@@ -457,6 +457,35 @@ A separate capture confirming that the temporary account is no longer present is
 
 ---
 
+## 006 — Reduce SSH Authentication Limits
+
+### Prediction
+
+I predicted that after setting:
+
+```text
+MaxAuthTries 3
+LoginGraceTime 30
+```
+
+the effective SSH configuration would change from:
+
+```text
+maxauthtries 6
+logingracetime 120
+```
+
+to:
+
+```text
+maxauthtries 3
+logingracetime 30
+```
+
+I also expected my existing `ubuntu` session to remain active after the SSH reload and a fresh `ubuntu` connection to continue working.
+
+
+
 ## Next Troubleshooting Entry
 
 The next hardening stage will cover:
