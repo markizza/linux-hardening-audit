@@ -1,6 +1,8 @@
 # Troubleshooting Log
 
-This log records the predictions I made before selected tests, what actually happened, and what I learned from the result.
+This log records predictions, tests, corrections and lessons from the project.
+
+I use it to separate what I expected to happen from what the server actually did.
 
 ---
 
@@ -12,7 +14,7 @@ Before inspecting the root account, I expected `/root/.ssh/authorized_keys` to e
 
 After inspecting the file, I found one authorized key with a forced command telling the user to log in as `ubuntu`.
 
-I therefore predicted that a root SSH attempt would not provide an interactive root shell.
+I therefore predicted that connecting as `root` with the matching private key would not give me an interactive root shell.
 
 ### Test
 
@@ -22,32 +24,69 @@ I connected as `root` using the same private key used for the `ubuntu` account.
 
 **Prediction: Correct, but my explanation needed refining.**
 
-The connection displayed:
+The client displayed:
 
 ```text
 Please login as the user "ubuntu" rather than the user "root".
 Connection closed.
 ```
 
-The server-side log showed that the root public key was accepted, but no interactive root shell was provided.
+The server log showed that the root public key was accepted.
+
+The forced command in `/root/.ssh/authorized_keys` then ran instead of the normal root shell.
 
 ### Analysis
 
-The connection was not rejected during public-key authentication.
+My original wording suggested that the root login would simply be rejected.
 
-Instead, the key was accepted and the forced command in `/root/.ssh/authorized_keys` ran instead of the normal root shell.
+That was not quite what happened.
+
+The authentication progressed far enough for the authorized key to be accepted. The restriction happened afterwards, when the forced command replaced the normal shell.
+
+The behaviour was:
+
+```text
+root public key accepted
+        ↓
+authorized_keys options applied
+        ↓
+forced command executed
+        ↓
+no interactive root shell
+```
+
+I later found another important limitation in my investigation.
+
+The SSH service was also started with:
+
+```text
+AuthorizedKeysCommand /usr/share/ec2-instance-connect/eic_run_authorized_keys %u %f
+AuthorizedKeysCommandUser ec2-instance-connect
+```
+
+This means `/root/.ssh/authorized_keys` is not the only possible source of SSH public keys on this EC2 instance.
+
+My test therefore proved the behaviour of the persistent root key I inspected, but it did not describe every possible key source available to `sshd`.
 
 ### Lesson
 
-`PermitRootLogin` alone does not describe the full behaviour of root SSH access.
+`PermitRootLogin` alone does not describe the full practical behaviour of root SSH access.
 
-In this case, the SSH daemon allowed public-key authentication for root, while the per-key options in `authorized_keys` controlled what happened after authentication.
+I need to consider:
+
+- the effective SSH daemon policy;
+- local `authorized_keys` files;
+- options attached to individual keys;
+- file ownership and permissions;
+- additional key sources such as EC2 Instance Connect;
+- actual connection behaviour.
 
 ### Evidence
 
-- `docs/captures/007-root-ssh-authorization.txt`
-- `docs/captures/008-root-login-behaviour.txt`
-- `docs/captures/009-root-login-server-log.txt`
+- [007-root-ssh-authorization.txt](captures/007-root-ssh-authorization.txt)
+- [008-root-login-behaviour.txt](captures/008-root-login-behaviour.txt)
+- [009-root-login-server-log.txt](captures/009-root-login-server-log.txt)
+- [002-ssh-service-baseline.txt](captures/002-ssh-service-baseline.txt)
 
 ---
 
@@ -75,31 +114,59 @@ passwordauthentication yes
 
 I did not reload SSH during this test.
 
+### Test
+
+I created a temporary:
+
+```text
+00-precedence-test.conf
+```
+
+containing:
+
+```text
+PasswordAuthentication yes
+```
+
+I then checked the resolved configuration using:
+
+```bash
+sudo sshd -T | grep '^passwordauthentication'
+```
+
+After the test, I removed the temporary file and checked the value again.
+
 ### Result
 
 **Prediction: Correct.**
 
-With both files present, `sshd -T` reported:
+With both files present:
 
 ```text
 passwordauthentication yes
 ```
 
-After removing the temporary `00-precedence-test.conf` file, the result returned to:
+After removing `00-precedence-test.conf`:
 
 ```text
 passwordauthentication no
 ```
 
+The SSH service was not reloaded during the experiment.
+
 ### Lesson
 
-The included drop-in files were processed in lexical order, and the first value obtained for this directive was used.
+The test showed that `00-precedence-test.conf` supplied the effective value when it conflicted with `60-cloudimg-settings.conf`.
 
-This test also showed that I could use `sshd -T` to check how a configuration would resolve before reloading the SSH service.
+This was consistent with OpenSSH's documented lexical processing and first-obtained-value behaviour.
+
+The experiment itself only tested this specific ordering on my server, so I do not treat it as standalone proof of every possible OpenSSH precedence case.
+
+It also showed that `sshd -T` is useful for checking how a configuration resolves before applying it to the running SSH service.
 
 ### Evidence
 
-- `docs/captures/011-ssh-dropin-precedence-test.txt`
+- [011-ssh-dropin-precedence-test.txt](captures/011-ssh-dropin-precedence-test.txt)
 
 ---
 
@@ -107,19 +174,19 @@ This test also showed that I could use `sshd -T` to check how a configuration wo
 
 ### Finding
 
-Git warned that an LF-formatted terminal capture copied from Linux would be converted to CRLF in my Windows working copy.
+While adding a Linux-generated capture to Git from Windows, Git warned that LF line endings would be replaced by CRLF in the working copy.
 
 ### Risk
 
-CRLF can break Bash scripts on Linux.
+CRLF can cause a Bash script to fail on Linux if the carriage return becomes part of the shebang.
 
-For example, a shebang may effectively become:
+For example:
 
 ```text
 #!/bin/bash\r
 ```
 
-Linux can then treat the hidden carriage return as part of the interpreter path and report:
+can cause Linux to report:
 
 ```text
 bad interpreter: No such file or directory
@@ -127,19 +194,25 @@ bad interpreter: No such file or directory
 
 even though `/bin/bash` exists.
 
-I caught this from the Git warning before it caused a script failure.
+I encountered the warning before any Bash script actually failed, so this was a preventative fix.
 
-### Resolution
+### Initial Fix
 
-I added a `.gitattributes` file enforcing LF endings for:
+I first added `.gitattributes`, but my original rule did not apply to the file as expected.
 
-```text
-*.sh
-*.txt
-*.md
+I checked using:
+
+```bash
+git ls-files --eol
 ```
 
-I then ran:
+and saw that no attribute rule was being reported for the capture.
+
+### Correction
+
+I corrected `.gitattributes` to apply LF handling at repository level, renormalized the files, and checked again.
+
+I used:
 
 ```bash
 git add --renormalize .
@@ -151,13 +224,19 @@ and verified the result with:
 git ls-files --eol docs/captures/011-ssh-dropin-precedence-test.txt
 ```
 
-The index and working copy both reported LF line endings.
+The index and working copy then reported LF line endings.
 
 ### Lesson
 
-I should not rely on platform defaults for line endings in a repository that moves files between Windows and Linux.
+Adding a configuration file does not prove the configuration has taken effect.
 
-I verified the rule after adding it rather than assuming it had taken effect.
+I had to check Git's actual state after making the change.
+
+This is the same approach I use with SSH configuration: configure first, then verify the effective result.
+
+### Related File
+
+- [.gitattributes](../.gitattributes)
 
 ---
 
@@ -175,7 +254,7 @@ and reloading SSH:
 
 - my existing `ubuntu` session would remain active;
 - a fresh `ubuntu` connection would still succeed;
-- a new `root` connection would be rejected;
+- a fresh `root` connection would be refused;
 - the forced command in `/root/.ssh/authorized_keys` would no longer run.
 
 ### Recovery Plan
@@ -184,9 +263,9 @@ If a fresh `ubuntu` connection failed, I planned to:
 
 1. Keep the original SSH session open.
 2. Remove or correct the hardening configuration.
-3. Validate it with `sshd -t`.
+3. Validate the configuration with `sshd -t`.
 4. Reload SSH.
-5. Test another fresh connection before closing the original session.
+5. Test a fresh `ubuntu` connection before closing the original session.
 
 ### Test
 
@@ -198,45 +277,89 @@ PermitRootLogin no
 
 to `00-hardening.conf`.
 
-Before reloading SSH, I validated the configuration with:
+Before reloading SSH, I ran:
 
 ```bash
 sudo sshd -t
 ```
 
-and confirmed the effective value with:
+and checked the effective value with:
 
 ```bash
 sudo sshd -T | grep '^permitrootlogin'
 ```
 
-After reloading SSH, I tested both `ubuntu` and `root` from fresh connections.
+The effective result was:
+
+```text
+permitrootlogin no
+```
+
+I then reloaded SSH and tested:
+
+- the existing `ubuntu` session;
+- a fresh `ubuntu` connection;
+- a fresh `root` connection.
 
 ### Result
 
 **Prediction: Correct.**
 
-- The existing `ubuntu` session remained active.
-- A fresh `ubuntu` connection succeeded.
-- The new root connection was refused.
-- The previous forced-command message was no longer displayed.
+The existing `ubuntu` session remained active.
+
+A fresh `ubuntu` connection succeeded.
+
+The root connection was refused, and the earlier forced-command message was not displayed.
+
+The server log recorded:
+
+```text
+ROOT LOGIN REFUSED FROM <REDACTED-PUBLIC-IP> port <REDACTED> [preauth]
+Connection reset by authenticating user root <REDACTED-PUBLIC-IP> [preauth]
+```
+
+### Analysis
+
+The `[preauth]` marker showed that the connection was refused before authentication completed.
+
+This was different from the earlier root test, where the public key was accepted and the forced command executed.
+
+The behaviour changed from:
+
+```text
+BEFORE
+
+root key accepted
+      ↓
+forced command
+      ↓
+no shell
+```
+
+to:
+
+```text
+AFTER
+
+PermitRootLogin no
+      ↓
+root refused during pre-authentication
+```
 
 ### Lesson
 
-Before this change, root public-key authentication was accepted and the per-key forced command prevented a normal shell.
+`PermitRootLogin no` moved the protection to the SSH daemon-policy layer.
 
-After `PermitRootLogin no`, root access was refused by the SSH daemon itself.
+The server no longer relied on the per-key forced command to prevent an interactive root session.
 
-This moved the control from a per-key restriction to an explicit server-wide SSH policy.
-
-The existing session also remained active after reload, which confirmed that the new policy affected new connections rather than retroactively changing the established session.
+The test also confirmed that reloading SSH did not terminate my already-established session. New connection attempts were evaluated against the updated configuration.
 
 ### Evidence
 
-- `docs/captures/012-permitrootlogin-pre-reload.txt`
-- `docs/captures/013-ubuntu-login-after-permitrootlogin.txt`
-- `docs/captures/014-root-login-after-permitrootlogin.txt`
-- `docs/captures/015-permitrootlogin-server-log.txt`
+- [012-permitrootlogin-pre-reload.txt](captures/012-permitrootlogin-pre-reload.txt)
+- [013-ubuntu-login-after-permitrootlogin.txt](captures/013-ubuntu-login-after-permitrootlogin.txt)
+- [014-root-login-after-permitrootlogin.txt](captures/014-root-login-after-permitrootlogin.txt)
+- [015-permitrootlogin-server-log.txt](captures/015-permitrootlogin-server-log.txt)
 
 ---
 
@@ -252,15 +375,25 @@ AllowUsers ubuntu
 
 and reloading SSH:
 
-- the existing `ubuntu` session would remain active;
-- a fresh `ubuntu` connection would succeed;
-- another valid local user would be denied SSH access even with a valid authorized key.
+- my existing `ubuntu` session would remain active;
+- a fresh `ubuntu` SSH connection would succeed;
+- another valid local user would be denied SSH access even if it had a valid authorized key.
 
 ### Test
 
-I created a temporary local user called `ssh-test` and configured it with the same public key used for the `ubuntu` account.
+I created a temporary local account called:
 
-Before reloading SSH, I confirmed that `ssh-test` could successfully authenticate using the key.
+```text
+ssh-test
+```
+
+I configured it with the same public key used for the `ubuntu` account.
+
+Before reloading SSH, I confirmed that the account could successfully connect:
+
+```text
+ssh-test + valid key → SUCCESS
+```
 
 I then reloaded SSH with:
 
@@ -274,31 +407,54 @@ active and repeated the same connection attempt.
 
 **Prediction: Correct.**
 
-Before the reload:
-
-```text
-ssh-test + valid key → SUCCESS
-```
-
 After the reload:
 
 ```text
-ssh-test + same valid key → DENIED
 ubuntu + valid key        → SUCCESS
+ssh-test + same valid key → DENIED
 ```
 
-I removed the temporary `ssh-test` account after completing the test.
+The server log recorded:
+
+```text
+User ssh-test from <REDACTED-PUBLIC-IP> not allowed because not listed in AllowUsers [preauth]
+```
+
+### Analysis
+
+The `[preauth]` message gave me the reason for the failure directly.
+
+The account was rejected because it was not included in `AllowUsers`.
+
+The test kept the user, key and authentication method the same. The relevant change was that the SSH allowlist had become active.
 
 ### Lesson
 
-`AllowUsers` provides an explicit SSH account allowlist.
+A valid local account and valid SSH key are not enough for SSH access when the username is excluded by daemon policy.
 
-The test kept the user, key and authentication method the same while changing whether the allowlist was active.
+Testing with `ssh-test` also allowed me to verify `AllowUsers` separately instead of using `root`, which was already blocked by `PermitRootLogin no`.
 
-This showed that a valid local account and valid SSH key are not enough for SSH access when the username is excluded by daemon policy.
+### Cleanup
+
+I used `ssh-test` only for this experiment.
+
+A separate capture confirming that the temporary account is no longer present is still required before I treat the cleanup as evidenced.
 
 ### Evidence
 
-- `docs/captures/016-allowusers-before-reload.txt`
-- `docs/captures/017-allowusers-after-reload.txt`
-- `docs/captures/018-allowusers-server-log.txt`
+- [016-allowusers-before-reload.txt](captures/016-allowusers-before-reload.txt)
+- [017-allowusers-after-reload.txt](captures/017-allowusers-after-reload.txt)
+- [018-allowusers-server-log.txt](captures/018-allowusers-server-log.txt)
+
+---
+
+## Next Troubleshooting Entry
+
+The next hardening stage will cover:
+
+```text
+MaxAuthTries 3
+LoginGraceTime 30
+```
+
+From this point onward, I will commit the prediction before making the corresponding server change so the Git history also records the order of the experiment.

@@ -33,7 +33,7 @@ Sep 27 11:45:27 ip-10-0-1-6 systemd[1]: Starting ssh.service - OpenBSD Secure Sh
 Sep 27 11:45:27 ip-10-0-1-6 sshd[884]: Server listening on 0.0.0.0 port 22.
 Sep 27 11:45:27 ip-10-0-1-6 sshd[884]: Server listening on :: port 22.
 Sep 27 11:45:27 ip-10-0-1-6 systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
-Sep 27 11:45:28 ip-10-0-1-6 sshd[885]: Accepted publickey for ubuntu from 86.159.37.50 port 56236 ssh2: ED25519 SHA256:aOagTYjhjQH9XZr+gAphxZGjYIbm4Eqlq3z6Jrg+Bhk
+Sep 27 11:45:28 ip-10-0-1-6 sshd[885]: Accepted publickey for ubuntu from [REDACTED-PRIVATE-IP] port 56236 ssh2: ED25519 SHA256:[REDACTED]
 Sep 27 11:45:28 ip-10-0-1-6 sshd[885]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)
 
 === LISTENING TCP/22 ===

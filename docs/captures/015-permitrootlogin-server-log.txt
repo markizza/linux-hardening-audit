@@ -1,6 +1,6 @@
 ubuntu@ip-10-0-1-6:~$ sudo journalctl -u ssh.service --since "5 minutes ago" --no-pager
-Oct 07 07:07:50 ip-10-0-1-6 sshd[13768]: Accepted publickey for ubuntu from [REDACTED-PRIVATE-IP] port 51990 ssh2: ED25519 SHA256:[REDACTED]
+Oct 07 07:07:50 ip-10-0-1-6 sshd[13768]: Accepted publickey for ubuntu from [REDACTED-IP] port 51990 ssh2: ED25519 SHA256:[REDACTED]
 Oct 07 07:07:50 ip-10-0-1-6 sshd[13768]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)
-Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: ROOT LOGIN REFUSED FROM [REDACTED-PRIVATE-IP] port 56969
-Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: ROOT LOGIN REFUSED FROM [REDACTED-PRIVATE-IP] port 56969 [preauth]
-Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: Connection reset by authenticating user root [REDACTED-PRIVATE-IP] port 56969 [preauth]
+Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: ROOT LOGIN REFUSED FROM [REDACTED-IP] port 56969
+Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: ROOT LOGIN REFUSED FROM [REDACTED-IP] port 56969 [preauth]
+Oct 07 07:08:40 ip-10-0-1-6 sshd[13893]: Connection reset by authenticating user root [REDACTED-IP] port 56969 [preauth]
