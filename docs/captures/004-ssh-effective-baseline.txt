@@ -1,0 +1,8 @@
+=== EFFECTIVE SSH BASELINE ===
+2026-09-27T13:16:02+00:00
+logingracetime 120
+maxauthtries 6
+permitrootlogin without-password
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no

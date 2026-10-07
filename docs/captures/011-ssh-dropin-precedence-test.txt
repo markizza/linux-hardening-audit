@@ -1,0 +1,9 @@
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/00-precedence-test.conf
+PasswordAuthentication yes
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ sudo sshd -t
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ sudo sshd -T | grep '^passwordauthentication'
+passwordauthentication yes
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ sudo rm /etc/ssh/sshd_config.d/00-precedence-test.conf
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ sudo sshd -t
+ubuntu@ip-10-0-1-6:~/linux-server-hardening-audit/evidence$ sudo sshd -T | grep '^passwordauthentication'
+passwordauthentication no

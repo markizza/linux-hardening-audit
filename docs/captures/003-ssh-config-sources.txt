@@ -1,0 +1,15 @@
+=== SSH INCLUDE DIRECTIVES ===
+12:Include /etc/ssh/sshd_config.d/*.conf
+
+=== SSH DROP-IN FILES ===
+total 12
+drwxr-xr-x 2 root root 4096 Jun 10 10:11 .
+drwxr-xr-x 4 root root 4096 Sep 14 11:45 ..
+-rw-r--r-- 1 root root   26 Jun 10 10:11 60-cloudimg-settings.conf
+
+=== 60-cloudimg-settings.conf ===
+PasswordAuthentication no
+
+=== RELEVANT CONFIG DECLARATIONS ===
+/etc/ssh/sshd_config:71:KbdInteractiveAuthentication no
+/etc/ssh/sshd_config.d/60-cloudimg-settings.conf:1:PasswordAuthentication no

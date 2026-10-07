@@ -1,0 +1,41 @@
+=== SSH SOCKET ===
+● ssh.socket - OpenBSD Secure Shell server socket
+     Loaded: loaded (/usr/lib/systemd/system/ssh.socket; enabled; preset: enabled)
+     Active: active (running) since Sun 2026-09-27 11:45:21 UTC; 1h 20min ago
+   Triggers: ● ssh.service
+     Listen: 0.0.0.0:22 (Stream)
+             [::]:22 (Stream)
+      Tasks: 0 (limit: 627)
+     Memory: 12.0K (peak: 256.0K)
+        CPU: 1ms
+     CGroup: /system.slice/ssh.socket
+
+Sep 27 11:45:21 ip-10-0-1-6 systemd[1]: Listening on ssh.socket - OpenBSD Secure Shell server socket.
+
+=== SSH SERVICE ===
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; disabled; preset: enabled)
+    Drop-In: /usr/lib/systemd/system/ssh.service.d
+             └─ec2-instance-connect.conf
+     Active: active (running) since Sun 2026-09-27 11:45:27 UTC; 1h 20min ago
+TriggeredBy: ● ssh.socket
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+    Process: 882 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+   Main PID: 884 (sshd)
+      Tasks: 1 (limit: 627)
+     Memory: 5.1M (peak: 5.8M)
+        CPU: 51ms
+     CGroup: /system.slice/ssh.service
+             └─884 "sshd: /usr/sbin/sshd -D -o AuthorizedKeysCommand /usr/share/ec2-instance-connect/eic_run_authorized_keys %u %f -o AuthorizedKeysCommandUser ec2-instance-connect [listener] 0 of 10-100 startups"
+
+Sep 27 11:45:27 ip-10-0-1-6 systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Sep 27 11:45:27 ip-10-0-1-6 sshd[884]: Server listening on 0.0.0.0 port 22.
+Sep 27 11:45:27 ip-10-0-1-6 sshd[884]: Server listening on :: port 22.
+Sep 27 11:45:27 ip-10-0-1-6 systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+Sep 27 11:45:28 ip-10-0-1-6 sshd[885]: Accepted publickey for ubuntu from 86.159.37.50 port 56236 ssh2: ED25519 SHA256:aOagTYjhjQH9XZr+gAphxZGjYIbm4Eqlq3z6Jrg+Bhk
+Sep 27 11:45:28 ip-10-0-1-6 sshd[885]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)
+
+=== LISTENING TCP/22 ===
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=884,fd=3),("systemd",pid=1,fd=87))
+LISTEN 0      4096            [::]:22           [::]:*    users:(("sshd",pid=884,fd=4),("systemd",pid=1,fd=88))

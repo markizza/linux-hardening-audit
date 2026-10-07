@@ -1,0 +1,15 @@
+=== ROOT SSH TEST - SERVER LOG ===
+2026-10-06T15:31:40+00:00
+
+2026-10-06T15:21:25.339968+00:00 ip-10-0-1-6 sudo:   ubuntu : TTY=pts/1 ; PWD=/ ; USER=root ; COMMAND=/usr/bin/tail -50 /var/log/auth.log
+2026-10-06T15:21:25.340750+00:00 ip-10-0-1-6 sudo: pam_unix(sudo:session): session opened for user root(uid=0) by ubuntu(uid=1000)
+2026-10-06T15:21:25.345749+00:00 ip-10-0-1-6 sudo: pam_unix(sudo:session): session closed for user root
+2026-10-06T15:22:05.360738+00:00 ip-10-0-1-6 sshd[5921]: Accepted publickey for root from [REDACTED-PRIVATE-IP] port 33467 ssh2: ED25519 [REDACTED-KEY]
+2026-10-06T15:22:05.361805+00:00 ip-10-0-1-6 sshd[5921]: pam_unix(sshd:session): session opened for user root(uid=0) by root(uid=0)
+2026-10-06T15:22:05.371850+00:00 ip-10-0-1-6 systemd-logind[558]: New session 195 of user root.
+2026-10-06T15:22:05.399830+00:00 ip-10-0-1-6 (systemd): pam_unix(systemd-user:session): session opened for user root(uid=0) by root(uid=0)
+2026-10-06T15:22:16.127698+00:00 ip-10-0-1-6 sshd[5921]: Received disconnect from [REDACTED-PRIVATE-IP] port 33467:11: disconnected by user
+2026-10-06T15:22:16.128281+00:00 ip-10-0-1-6 sshd[5921]: Disconnected from user root [REDACTED-PRIVATE-IP] port 33467
+2026-10-06T15:22:16.128364+00:00 ip-10-0-1-6 sshd[5921]: pam_unix(sshd:session): session closed for user root
+2026-10-06T15:22:16.132005+00:00 ip-10-0-1-6 systemd-logind[558]: Session 195 logged out. Waiting for processes to exit.
+2026-10-06T15:22:16.132695+00:00 ip-10-0-1-6 systemd-logind[558]: Removed session 195.

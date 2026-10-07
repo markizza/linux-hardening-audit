@@ -1,0 +1,19 @@
+=== BASELINE SSH AUDIT ===
+2026-09-27T13:00:30+00:00
+
+=== OS ===
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+
+=== KERNEL ===
+7.0.0-1013-aws
+
+=== SSH VERSION ===
+OpenSSH_9.6p1 Ubuntu-3ubuntu13.19, OpenSSL 3.0.13 30 Jan 2024
+
+=== EFFECTIVE SSH CONFIG ===
+logingracetime 120
+maxauthtries 6
+permitrootlogin without-password
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no

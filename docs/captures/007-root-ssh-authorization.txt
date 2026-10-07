@@ -1,0 +1,24 @@
+=== DATE ===
+2026-10-05T13:35:15+00:00
+
+=== ROOT ACCOUNT ===
+root:x:0:0:root:/root:/bin/bash
+
+=== EFFECTIVE AUTHORIZED KEYS SETTINGS ===
+strictmodes yes
+authorizedkeysfile .ssh/authorized_keys .ssh/authorized_keys2
+
+=== ROOT SSH PATHS ===
+drwx------ 2 root root 4096 Sep 13 23:57 /root/.ssh
+-rw------- 1 root root 263 Sep 13 23:57 /root/.ssh/authorized_keys
+
+=== OWNERSHIP AND PERMISSIONS ===
+drwx------ 700 root:root /root
+drwx------ 700 root:root /root/.ssh
+-rw------- 600 root:root /root/.ssh/authorized_keys
+
+=== KEY COUNT ===
+1
+
+=== AUTHORIZED_KEYS - KEY MATERIAL REDACTED ===
+no-port-forwarding,no-agent-forwarding,no-X11-forwarding,command="echo 'Please login as the user \"ubuntu\" rather than the user \"root\".';echo;sleep 10;exit 142" ssh-ed25519 <REDACTED-PUBLIC-KEY> aws-lab-eu-west-2
