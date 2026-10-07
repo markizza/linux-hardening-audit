@@ -462,7 +462,7 @@ rather than assuming the configuration had worked.
 This was a preventative fix. I encountered the warning before any Bash script actually failed.
 
 ---
-## 18. Temporary Test Account Cleanup
+## 19. Temporary Test Account Cleanup
 
 The `ssh-test` account was created only for the `AllowUsers` behavioural test.
 

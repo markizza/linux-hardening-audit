@@ -1,0 +1,22 @@
+=== SSH AUTHENTICATION LIMIT HARDENING ===
+2026-10-07T15:37:37+00:00
+
+=== HARDENING FILE ===
+# SSH hardening controls
+
+PermitRootLogin no
+AllowUsers ubuntu
+MaxAuthTries 3
+LoginGraceTime 30
+
+=== SYNTAX VALIDATION ===
+sshd -t exit code: 0
+
+=== EFFECTIVE SSH CONFIGURATION ===
+logingracetime 30
+maxauthtries 3
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no
+allowusers ubuntu

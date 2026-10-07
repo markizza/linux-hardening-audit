@@ -484,7 +484,68 @@ logingracetime 30
 
 I also expected my existing `ubuntu` session to remain active after the SSH reload and a fresh `ubuntu` connection to continue working.
 
+### Test
 
+I added the two directives to my existing hardening drop-in:
+
+```text
+PermitRootLogin no
+AllowUsers ubuntu
+MaxAuthTries 3
+LoginGraceTime 30
+```
+
+I validated the configuration with:
+
+```bash
+sudo sshd -t
+```
+
+and checked the resolved values using:
+
+```bash
+sudo sshd -T
+```
+
+I then reloaded SSH and tested a fresh `ubuntu` connection.
+
+### Result
+
+**Prediction: Correct.**
+
+`sshd -t` completed successfully.
+
+`sshd -T` reported:
+
+```text
+maxauthtries 3
+logingracetime 30
+```
+
+The previously hardened controls also remained effective:
+
+```text
+permitrootlogin no
+allowusers ubuntu
+passwordauthentication no
+kbdinteractiveauthentication no
+pubkeyauthentication yes
+```
+
+After reloading SSH:
+
+- my existing `ubuntu` session remained active;
+- a fresh `ubuntu` SSH connection succeeded.
+
+### Lesson
+
+I reduced the number of authentication attempts allowed per connection and shortened the time available to complete authentication.
+
+I verified the effective values with `sshd -T` rather than assuming the configuration file change had taken effect.
+
+### Evidence
+
+- [020-ssh-authentication-limits.txt](captures/020-ssh-authentication-limits.txt)
 
 ## Next Troubleshooting Entry
 
