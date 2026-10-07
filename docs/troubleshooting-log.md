@@ -438,6 +438,14 @@ Testing with `ssh-test` also allowed me to verify `AllowUsers` separately instea
 
 I used `ssh-test` only for this experiment.
 
+After completing the test, I removed the temporary account and its home directory.
+
+I verified the cleanup rather than assuming the removal command had succeeded:
+
+```text
+ssh-test account     → NOT PRESENT
+/home/ssh-test       → NOT PRESENT
+```
 A separate capture confirming that the temporary account is no longer present is still required before I treat the cleanup as evidenced.
 
 ### Evidence
@@ -445,6 +453,7 @@ A separate capture confirming that the temporary account is no longer present is
 - [016-allowusers-before-reload.txt](captures/016-allowusers-before-reload.txt)
 - [017-allowusers-after-reload.txt](captures/017-allowusers-after-reload.txt)
 - [018-allowusers-server-log.txt](captures/018-allowusers-server-log.txt)
+- [019-ssh-test-cleanup.txt](captures/019-ssh-test-cleanup.txt)
 
 ---
 

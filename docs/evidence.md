@@ -462,6 +462,20 @@ rather than assuming the configuration had worked.
 This was a preventative fix. I encountered the warning before any Bash script actually failed.
 
 ---
+## 18. Temporary Test Account Cleanup
+
+The `ssh-test` account was created only for the `AllowUsers` behavioural test.
+
+After completing the test, I removed the account and its home directory.
+
+I then checked both states explicitly.
+
+The result showed:
+
+```text
+RESULT: ssh-test account is not present
+RESULT: /home/ssh-test is not present
+```
 
 ## Current Verified SSH State
 
@@ -491,8 +505,4 @@ After that, I plan to build the Bash audit script and test it against both compl
 
 ---
 
-## Evidence Still to Add
 
-I created `ssh-test` only for the `AllowUsers` experiment.
-
-I will only mark its cleanup as evidenced once I capture a check confirming that the temporary account is no longer present.
