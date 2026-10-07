@@ -1,0 +1,3 @@
+PS C:\Users\VICTUS> ssh -i C:\Users\VICTUS\.ssh\aws-lab-eu-west-2.pem root@[REDACTED-INSTANCE-IP]
+root@[REDACTED-INSTANCE-IP]: Permission denied (publickey).
+PS C:\Users\VICTUS>

@@ -1,0 +1,13 @@
+=== DATE ===
+2026-10-07T06:37:01+00:00
+
+=== HARDENING FILE ===
+# SSH hardening controls
+
+PermitRootLogin no
+
+=== SYNTAX VALIDATION ===
+sshd -t exit code: 0
+
+=== EFFECTIVE ROOT LOGIN POLICY ===
+permitrootlogin no

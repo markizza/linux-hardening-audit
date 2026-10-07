@@ -1,0 +1,32 @@
+PS C:\Users\VICTUS\projects> ssh -i C:\Users\VICTUS\.ssh\aws-lab-eu-west-2.pem ubuntu@[REDACTED-INSTANCE-IP]
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 7.0.0-1013-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Oct  7 07:07:50 UTC 2026
+
+  System load:  0.08              Temperature:           -273.1 C
+  Usage of /:   43.0% of 6.71GB   Processes:             119
+  Memory usage: 30%               Users logged in:       1
+  Swap usage:   0%                IPv4 address for ens5: 10.0.1.6
+
+ * Ubuntu Pro delivers the most comprehensive open source security and
+   compliance features.
+
+   https://ubuntu.com/aws/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+51 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+New release '26.04.1 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Wed Oct  7 06:07:04 2026 from [REDACTED-PRIVATE-IP]

@@ -1,0 +1,3 @@
+PS C:\Users\VICTUS> ssh -i C:\Users\VICTUS\.ssh\aws-lab-eu-west-2.pem ssh-test@[REDACTED-INSTANCE-ID]
+ssh-test@[REDACTED-INSTANCE-ID]: Permission denied (publickey).
+PS C:\Users\VICTUS>

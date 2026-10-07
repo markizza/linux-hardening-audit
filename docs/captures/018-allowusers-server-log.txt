@@ -1,0 +1,12 @@
+ubuntu@ip-10-0-1-6:~$ sudo journalctl -u ssh.service --since "5 minutes ago" --no-pager
+Oct 07 07:30:27 ip-10-0-1-6 sshd[14008]: Accepted publickey for ssh-test from [REDACTED-PRIVATE-IP] port 55692 ssh2: ED25519 SHA256:[REDACTED]
+Oct 07 07:30:27 ip-10-0-1-6 sshd[14008]: pam_unix(sshd:session): session opened for user ssh-test(uid=1001) by ssh-test(uid=0)
+Oct 07 07:31:36 ip-10-0-1-6 systemd[1]: Reloading ssh.service - OpenBSD Secure Shell server...
+Oct 07 07:31:36 ip-10-0-1-6 sshd[3333]: Received SIGHUP; restarting.
+Oct 07 07:31:36 ip-10-0-1-6 sshd[3333]: Server listening on 0.0.0.0 port 22.
+Oct 07 07:31:36 ip-10-0-1-6 sshd[3333]: Server listening on :: port 22.
+Oct 07 07:31:36 ip-10-0-1-6 systemd[1]: Reloaded ssh.service - OpenBSD Secure Shell server.
+Oct 07 07:32:07 ip-10-0-1-6 sshd[14112]: Accepted publickey for ubuntu from [REDACTED-PRIVATE-IP] port 62764 ssh2: ED25519 SHA256:[REDACTED]
+Oct 07 07:32:07 ip-10-0-1-6 sshd[14112]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)
+Oct 07 07:32:57 ip-10-0-1-6 sshd[14183]: User ssh-test from [REDACTED-PRIVATE-IP] not allowed because not listed in AllowUsers
+Oct 07 07:32:57 ip-10-0-1-6 sshd[14183]: Connection reset by invalid user ssh-test [REDACTED-PRIVATE-IP] port 58111 [preauth]
