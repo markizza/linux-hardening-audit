@@ -321,37 +321,84 @@ KbdInteractiveAuthentication no
 PubkeyAuthentication yes
 ```
 
-## Next Steps
+## Bash SSH Hardening Audit
 
-Next I plan to:
+I built a Bash audit script that evaluates the effective OpenSSH configuration using `sshd -T`.
 
-- reduce `MaxAuthTries` from `6` to `3`;
-- reduce `LoginGraceTime` from `120` to `30`;
-- build a Bash security audit script;
-- make the script check effective state rather than only configuration-file contents;
-- account for additional authentication paths such as EC2 Instance Connect;
-- deliberately break one control and confirm the script reports FAIL;
-- restore the control and confirm the script returns to PASS.
+The script checks:
 
-## Status
+```text
+PermitRootLogin
+PasswordAuthentication
+KbdInteractiveAuthentication
+PubkeyAuthentication
+AllowUsers
+MaxAuthTries
+LoginGraceTime
+```
 
-### Completed
+It also reports `AuthorizedKeysCommand` information without automatically treating it as a failure.
 
-- Ubuntu 24.04.4 baseline captured
-- Effective SSH baseline recorded with `sshd -T`
-- Main SSH configuration inspected
-- SSH configuration sources identified
-- SSH drop-in precedence tested
-- systemd socket activation verified
-- Root persistent `authorized_keys` behaviour investigated
-- EC2 Instance Connect `AuthorizedKeysCommand` identified
-- `PermitRootLogin no` applied and behaviourally tested
-- `AllowUsers ubuntu` applied and behaviourally tested
-- Cross-platform line-ending handling configured and verified
+The script uses these exit codes:
 
-### In Progress
+```text
+0 = all required controls passed
+1 = one or more security controls failed
+2 = audit or configuration error
+```
 
-- Evidence and repository hygiene review
-- `MaxAuthTries` and `LoginGraceTime` hardening
-- Bash security audit script
-- Deliberate control-failure testing
+### Failure Testing
+
+I first ran the script against the hardened server:
+
+```text
+PASS: 8
+FAIL: 0
+Result: PASSED
+```
+
+I then deliberately changed:
+
+```text
+MaxAuthTries 3
+```
+
+to:
+
+```text
+MaxAuthTries 6
+```
+
+The audit detected the change:
+
+```text
+[FAIL] MaxAuthTries = 6 (required: <= 3)
+Result: FAILED
+```
+
+After restoring `MaxAuthTries 3`, the audit returned to:
+
+```text
+Result: PASSED
+```
+
+This demonstrated that the audit could detect a deliberately introduced configuration failure rather than only reporting the expected state.
+
+## Project Status
+
+**Complete**
+
+The project now includes:
+
+- SSH baseline and configuration-source investigation
+- systemd SSH socket-activation investigation
+- root SSH behaviour analysis
+- `PermitRootLogin no` hardening
+- `AllowUsers ubuntu` hardening and behavioural testing
+- `MaxAuthTries 3` and `LoginGraceTime 30`
+- Bash SSH hardening audit script
+- PASS/FAIL reporting
+- meaningful exit codes
+- deliberate control-failure testing
+- control restoration and final PASS verification
+- documented evidence and troubleshooting

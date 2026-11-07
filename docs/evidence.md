@@ -564,3 +564,169 @@ authorizedkeyscommand none
 ```
 
 The SSH hardening phase is complete. The next stage is to build the Bash audit script and test it against compliant and deliberately broken controls.
+
+## 22. SSH Audit Script — Compliant State
+
+I built a Bash audit script to check the effective OpenSSH configuration against the controls used in this project.
+
+The script checks:
+
+```text
+PermitRootLogin
+PasswordAuthentication
+KbdInteractiveAuthentication
+PubkeyAuthentication
+AllowUsers
+MaxAuthTries
+LoginGraceTime
+```
+
+It uses `sshd -T` rather than checking only `/etc/ssh/sshd_config`.
+
+On the hardened replacement server, the audit reported:
+
+```text
+PASS: 8
+FAIL: 0
+INFO: 2
+Result: PASSED
+```
+
+The script returned exit code:
+
+```text
+0
+```
+
+This confirmed that the server met the defined SSH hardening requirements.
+
+The informational checks also showed:
+
+```text
+AuthorizedKeysCommand = none
+Running sshd command line contains an AuthorizedKeysCommand override
+```
+
+This showed that checking only the configuration returned by `sshd -T` may not describe every option used by the running SSH process.
+
+### Evidence
+
+- [021-audit-pass.txt](captures/021-audit-pass.txt)
+
+---
+
+## 23. Deliberate Audit Failure Test
+
+To test whether the audit script could detect a non-compliant control, I temporarily changed:
+
+```text
+MaxAuthTries 3
+```
+
+to:
+
+```text
+MaxAuthTries 6
+```
+
+I validated the SSH configuration and reloaded the SSH service.
+
+The effective value became:
+
+```text
+maxauthtries 6
+```
+
+When I ran the audit again, it reported:
+
+```text
+[FAIL] MaxAuthTries = 6 (required: <= 3)
+```
+
+The summary showed:
+
+```text
+PASS: 7
+FAIL: 1
+INFO: 2
+Result: FAILED
+```
+
+The script returned exit code:
+
+```text
+1
+```
+
+The remaining SSH controls continued to pass.
+
+This confirmed that the script could identify a deliberately introduced configuration failure rather than only reporting PASS on the server it was developed against.
+
+### Evidence
+
+- [022-audit-fail-maxauthtries.txt](captures/022-audit-fail-maxauthtries.txt)
+
+---
+
+## 24. Control Restoration and Final Audit
+
+After completing the failure test, I restored:
+
+```text
+MaxAuthTries 3
+```
+
+I reloaded SSH and confirmed:
+
+```text
+maxauthtries 3
+```
+
+I then ran the audit again.
+
+The final result was:
+
+```text
+PASS: 8
+FAIL: 0
+INFO: 2
+Result: PASSED
+```
+
+The script returned:
+
+```text
+0
+```
+
+This confirmed that the deliberately weakened control had been restored and the server had returned to the expected hardened state.
+
+### Evidence
+
+- [023-audit-restored-pass.txt](captures/023-audit-restored-pass.txt)
+
+---
+
+## Final Project State
+
+The final SSH controls on the replacement host are:
+
+```text
+PermitRootLogin no
+AllowUsers ubuntu
+MaxAuthTries 3
+LoginGraceTime 30
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+```
+
+The Bash audit script successfully demonstrated three different outcomes:
+
+```text
+Exit 0 → required controls passed
+Exit 1 → one or more security controls failed
+Exit 2 → the audit could not run correctly
+```
+
+The project is complete.

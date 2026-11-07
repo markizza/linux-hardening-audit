@@ -1,0 +1,22 @@
+=== SSH HARDENING AUDIT ===
+Host: ip-172-31-1-188
+Time: 2026-11-07T22:26:42+00:00
+
+[PASS] SSH configuration syntax is valid
+[PASS] PermitRootLogin = no
+[PASS] PasswordAuthentication = no
+[PASS] KbdInteractiveAuthentication = no
+[PASS] PubkeyAuthentication = yes
+[PASS] AllowUsers contains ubuntu
+[PASS] MaxAuthTries = 3 (required: <= 3)
+[PASS] LoginGraceTime = 30 (required: <= 30)
+[INFO] AuthorizedKeysCommand = none
+[INFO] Running sshd command line contains an AuthorizedKeysCommand override
+
+=== AUDIT SUMMARY ===
+PASS: 8
+FAIL: 0
+INFO: 2
+Result: PASSED
+
+Audit exit code: 0
