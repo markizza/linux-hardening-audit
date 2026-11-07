@@ -546,14 +546,3 @@ I verified the effective values with `sshd -T` rather than assuming the configur
 ### Evidence
 
 - [020-ssh-authentication-limits.txt](captures/020-ssh-authentication-limits.txt)
-
-## Next Troubleshooting Entry
-
-The next hardening stage will cover:
-
-```text
-MaxAuthTries 3
-LoginGraceTime 30
-```
-
-From this point onward, I will commit the prediction before making the corresponding server change so the Git history also records the order of the experiment.

@@ -4,6 +4,8 @@ This file summarises the evidence I collected while investigating and hardening 
 
 The terminal captures are stored in [`docs/captures/`](captures/).
 
+Sections 1–20 relate to the original EC2 host. Section 21 records the replacement host used for the audit-script phase.
+
 ---
 
 ## 1. System Baseline
@@ -462,6 +464,7 @@ rather than assuming the configuration had worked.
 This was a preventative fix. I encountered the warning before any Bash script actually failed.
 
 ---
+
 ## 19. Temporary Test Account Cleanup
 
 The `ssh-test` account was created only for the `AllowUsers` behavioural test.
@@ -477,32 +480,87 @@ RESULT: ssh-test account is not present
 RESULT: /home/ssh-test is not present
 ```
 
-## Current Verified SSH State
+---
 
-At this stage, I have added and tested:
+## 20. SSH Authentication Limits
 
-```text
-PermitRootLogin no
-AllowUsers ubuntu
-```
-
-The following controls were already present in the effective baseline and have been preserved:
+I reduced the SSH authentication limits from:
 
 ```text
-PasswordAuthentication no
-KbdInteractiveAuthentication no
-PubkeyAuthentication yes
+MaxAuthTries 6
+LoginGraceTime 120
 ```
 
-The next hardening changes are planned as:
+to:
 
 ```text
 MaxAuthTries 3
 LoginGraceTime 30
 ```
 
-After that, I plan to build the Bash audit script and test it against both compliant and deliberately broken controls.
+I validated the configuration with `sshd -t` and confirmed the effective values with `sshd -T` before reloading SSH.
+
+A fresh `ubuntu` connection continued to work after the reload.
+
+### Evidence
+
+- [020-ssh-authentication-limits.txt](captures/020-ssh-authentication-limits.txt)
 
 ---
 
+## 21. Lab Environment Rebuild
 
+The original EC2 instance used for the earlier SSH hardening tests was later terminated.
+
+To continue the project, I created a new EC2 instance and treated it as a separate environment.
+
+The replacement host is running:
+
+```text
+Ubuntu 26.04 LTS
+OpenSSH 10.2p1
+```
+
+Its initial SSH baseline included:
+
+```text
+logingracetime 120
+maxauthtries 6
+permitrootlogin prohibit-password
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no
+authorizedkeyscommand none
+```
+
+I reapplied the hardening controls:
+
+```text
+PermitRootLogin no
+AllowUsers ubuntu
+MaxAuthTries 3
+LoginGraceTime 30
+```
+
+I validated the configuration with `sshd -t`, checked the effective state with `sshd -T`, reloaded SSH, and confirmed that a fresh `ubuntu` login still worked.
+
+Earlier evidence in this repository belongs to the original EC2 instance. The replacement instance is being used for the audit-script phase.
+
+---
+
+## Current Verified SSH State
+
+The replacement host currently reports:
+
+```text
+logingracetime 30
+maxauthtries 3
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no
+allowusers ubuntu
+authorizedkeyscommand none
+```
+
+The SSH hardening phase is complete. The next stage is to build the Bash audit script and test it against compliant and deliberately broken controls.
